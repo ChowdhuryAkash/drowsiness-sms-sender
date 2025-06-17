@@ -16,6 +16,7 @@ app.post('/sendAlertSms', async (req, res) => {
     text, // Car number text from the request body
     lat,
     lon,
+    receiverPhoneNumber
    } = req.body;
 
   if (!text) {
@@ -28,7 +29,7 @@ app.post('/sendAlertSms', async (req, res) => {
     const message = await client.messages.create({
       body: messageBody,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: process.env.RECEIVER_PHONE_NUMBER,
+      to: receiverPhoneNumber
     });
 
     res.status(200).json({ success: true, sid: message.sid });
