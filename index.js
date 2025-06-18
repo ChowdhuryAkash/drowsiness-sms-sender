@@ -18,18 +18,23 @@ app.post('/sendAlertSms', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // const messageBody = `A drowsiness driver detected with the probable car number ${text} at the location with Latitude-${lat} and Longitude-${lon}. Please take necessary action immediately.`;
+
 
   const messageBody = 
-  `\n🚨 Drowsy Driver Alert 🚨\n` +
-  `Car No: ${text}\n` +
+  `Drowsy Driver Alert\n` +
+  `Vehicle No: ${text}\n` +
   `Location: Lat ${lat}, Lon ${lon}\n` +
-  `📍 View on Map:\nhttps://www.google.com/maps?q=${lat},${lon}\n` +
-  `⚠️ Please take immediate action.`;
+  `Map: https://www.google.com/maps?q=${lat},${lon}\n` +
+  `Take immediate action.`;
 
   const recipients = [
     process.env.RECEIVER_PHONE_NUMBER,
-    // "+919875519510",
+    "+919875519510",
+
+
+
+
+    
     // "+919836356250"
   ];
 
