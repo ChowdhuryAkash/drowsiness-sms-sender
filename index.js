@@ -22,7 +22,7 @@ app.post('/sendAlertSms', async (req, res) => {
 
   const recipients = [
     process.env.RECEIVER_PHONE_NUMBER,
-    "+919875519510",
+    // "+919875519510",
     // "+919836356250"
   ];
 
