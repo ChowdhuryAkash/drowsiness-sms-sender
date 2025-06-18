@@ -12,29 +12,39 @@ const client = twilio(
 app.use(express.json());
 
 app.post('/sendAlertSms', async (req, res) => {
-  const {
-    text, // Car number text from the request body
-    lat,
-    lon
-   } = req.body;
+  const { text, lat, lon } = req.body;
 
-  if (!text) {
-    return res.status(400).json({ error: 'Missing car number text' });
+  if (!text || !lat || !lon) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
   const messageBody = `A drowsiness driver detected with the probable car number ${text} at the location with Latitude-${lat} and Longitude-${lon}. Please take necessary action immediately.`;
 
-  try {
-    const message = await client.messages.create({
-      body: messageBody,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: process.env.RECEIVER_PHONE_NUMBER,
-    });
+  const recipients = [
+    process.env.RECEIVER_PHONE_NUMBER,
+    "+919875519510",
+    // "+919836356250"
+  ];
 
-    res.status(200).json({ success: true, sid: message.sid });
+  try {
+    const results = await Promise.all(
+      recipients.map((to) =>
+        client.messages.create({
+          body: messageBody,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to,
+        })
+      )
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Sent to ${recipients.length} numbers`,
+      sids: results.map((msg) => msg.sid),
+    });
   } catch (error) {
     console.error('Error sending SMS:', error);
-    res.status(500).json({ error: 'Failed to send SMS' });
+    res.status(500).json({ error: 'Failed to send SMS to all numbers' });
   }
 });
 
