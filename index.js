@@ -12,51 +12,34 @@ const client = twilio(
 app.use(express.json());
 
 app.post('/sendAlertSms', async (req, res) => {
-  const { text, lat, lon } = req.body;
+  const {
+    text, // Car number text from the request body
+    lat,
+    lon
+   } = req.body;
 
-  if (!text || !lat || !lon) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!text) {
+    return res.status(400).json({ error: 'Missing car number text' });
   }
-
-
 
   const messageBody = 
   `Drowsy Driver Alert\n` +
   `Vehicle No: ${text}\n` +
   `Location: Lat ${lat}, Lon ${lon}\n` +
-  `Map: https://www.google.com/maps?q=${lat},${lon}\n` +
-  `Take immediate action.`;
-
-  const recipients = [
-    process.env.RECEIVER_PHONE_NUMBER,
-    "+919875519510",
-
-
-
-
-    
-    // "+919836356250"
-  ];
+  `See in Map: https://www.google.com/maps?q=${lat},${lon}\n` +
+  `Please Take immediate action.`;
 
   try {
-    const results = await Promise.all(
-      recipients.map((to) =>
-        client.messages.create({
-          body: messageBody,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to,
-        })
-      )
-    );
-
-    res.status(200).json({
-      success: true,
-      message: `Sent to ${recipients.length} numbers`,
-      sids: results.map((msg) => msg.sid),
+    const message = await client.messages.create({
+      body: messageBody,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: process.env.RECEIVER_PHONE_NUMBER,
     });
+
+    res.status(200).json({ success: true, sid: message.sid });
   } catch (error) {
     console.error('Error sending SMS:', error);
-    res.status(500).json({ error: 'Failed to send SMS to all numbers' });
+    res.status(500).json({ error: 'Failed to send SMS' });
   }
 });
 
